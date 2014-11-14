@@ -1,0 +1,42 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.distilledcode.aem.samples</groupId>
+        <artifactId>aem-sample-project-parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../../aem-parent/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>aem-sample-project-commons</artifactId>
+    <packaging>bundle</packaging>
+
+    <name>AEM Sample Project :: Commons Bundle</name>
+
+
+    <build>
+        <plugins>
+            <!-- activate the maven-bundle-plugin, including its configurations from the parent -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+            </plugin>
+
+            <!--
+                activate the maven-scr-plugin, including its configurations from the parent
+                the plugin can be omitted if no scr annotations are used, this may speed up the build
+            -->
+            <!-- <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-scr-plugin</artifactId>
+            </plugin> -->
+
+            <!-- activate the maven-sling-plugin to allow using the installBundle profile -->
+            <plugin>
+                <groupId>org.apache.sling</groupId>
+                <artifactId>maven-sling-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

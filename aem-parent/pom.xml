@@ -1,0 +1,272 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>net.distilledcode.aem.samples</groupId>
+    <artifactId>aem-sample-project-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <name>AEM Sample Project :: Parent</name>
+    <description>
+        Parent pom for an AEM project, containing mainly plugin configurations.
+    </description>
+
+    <organization>
+        <name>AEM Sample Project</name>
+    </organization>
+
+    <properties>
+        <!-- properties with default values; can be overwritten from the commandline -->
+        <server.user>admin</server.user>
+        <server.password>admin</server.password>
+        <server.port>4502</server.port>
+        <server.url>http://localhost:${server.port}</server.url>
+        <server.install.path>/apps/aem-sample-project/install</server.install.path>
+
+        <!-- set correct source and report encoding -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!--
+                    The maven-bundle-plugin provides
+                    * the tooling to conveniently create OSGi bundles
+                    * baselining support to automatically enforce semantic versioning
+                -->
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-bundle-plugin</artifactId>
+                    <version>2.5.3</version>
+                    <extensions>true</extensions>
+                    <executions>
+                        <execution>
+                            <id>semantic-versioning</id>
+                            <goals>
+                                <goal>baseline</goal>
+                            </goals>
+                            <configuration>
+                                <failOnError>true</failOnError>
+                                <failOnWarning>true</failOnWarning>
+                            </configuration>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <remoteOBR>NONE</remoteOBR>
+                        <instructions>
+                            <Bundle-Category>aem-samle-project</Bundle-Category>
+                        </instructions>
+                    </configuration>
+                </plugin>
+
+                <!--
+                    The maven-scr-plugin requires
+                    * the build-time dependency org.apache.felix.scr.annotations
+                    and it provides
+                    * generated declarative services and metadata descriptors
+                -->
+                <plugin>
+                    <groupId>org.apache.felix</groupId>
+                    <artifactId>maven-scr-plugin</artifactId>
+                    <version>1.20.0</version>
+                    <executions>
+                        <execution>
+                            <id>generate-scr-descriptors</id>
+                            <phase>compile</phase>
+                            <goals>
+                                <goal>scr</goal>
+                            </goals>
+                            <configuration>
+                                <properties>
+                                    <service.vendor>${project.organization.name}</service.vendor>
+                                </properties>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!--
+                    The maven-sling-plugin provides
+                    * a convenient ay to install an OSGi bundle (see installBundle profile)
+                -->
+                <plugin>
+                    <groupId>org.apache.sling</groupId>
+                    <artifactId>maven-sling-plugin</artifactId>
+                    <version>2.1.0</version>
+                </plugin>
+
+                <!--
+                    The content-package-maven-plugin provides
+                    * the packaging type content-package,
+                    * convenient configuration to embed bundles and sub-packages
+                    * automatically install the content-package (see installPackage profile)
+                -->
+                <plugin>
+                    <groupId>com.day.jcr.vault</groupId>
+                    <artifactId>content-package-maven-plugin</artifactId>
+                    <version>0.0.23</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <failOnError>true</failOnError>
+                        <failOnMissingEmbed>true</failOnMissingEmbed>
+                        <version>${project.version}</version>
+                        <group>aem-sample-project</group>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+    </build>
+
+
+    <!--
+        The installBundle and installPackage profiles are both optional and cause
+        the respective artifacts to be deployed a running AEM instance.
+
+        Both profile are configured in the pluginManagement section. The plugins
+        need to be included in the inheriting pom's project.build.plugins section
+        in order to become active. The profiles only change the default
+        configuration and thus allow keeping the poms DRY.
+    -->
+    <profiles>
+
+        <!--
+           Installs the OSGi bundle into the repository when the build is successful.
+
+           Note: Install the content-package first to make sure the path
+           ${server.install.path} is present in the repository. Otherwise the installation
+           may fail.
+       -->
+        <profile>
+            <id>installBundle</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.sling</groupId>
+                            <artifactId>maven-sling-plugin</artifactId>
+                            <executions>
+                                <execution>
+                                    <id>install-bundle</id>
+                                    <phase>package</phase>
+                                    <goals>
+                                        <goal>install</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                            <configuration>
+                                <slingUrl>${server.url}/${server.install.path}</slingUrl>
+                                <user>${server.user}</user>
+                                <password>${server.password}</password>
+                                <usePut>false</usePut>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+
+        <!--
+            Installs the content-package into the repository when the build is successful.
+        -->
+        <profile>
+            <id>installPackage</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>com.day.jcr.vault</groupId>
+                            <artifactId>content-package-maven-plugin</artifactId>
+                            <executions>
+                                <execution>
+                                    <id>install-package</id>
+                                    <phase>package</phase>
+                                    <goals>
+                                        <goal>install</goal>
+                                    </goals>
+                                    <configuration>
+                                        <verbose>true</verbose>
+                                        <userId>${server.user}</userId>
+                                        <password>${server.password}</password>
+                                        <targetURL>${server.url}/crx/packmgr/service.jsp</targetURL>
+                                    </configuration>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+    </profiles>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.scr.annotations</artifactId>
+                <version>1.9.8</version>
+                <scope>compile</scope>
+                <optional>true</optional>
+            </dependency>
+
+            <dependency>
+                <groupId>net.distilledcode.aem.samples</groupId>
+                <artifactId>aem-sample-project-commons</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>net.distilledcode.aem.samples</groupId>
+                <artifactId>aem-sample-project-core</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.sling</groupId>
+                <artifactId>org.apache.sling.api</artifactId>
+                <version>2.5.0</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>2.5</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.6</version>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- Adobe's repository for the content-package-maven-plugin -->
+    <pluginRepositories>
+        <pluginRepository>
+            <id>adobe-repository</id>
+            <url>http://repo.adobe.com/nexus/content/groups/public</url>
+            <releases>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+</project>
