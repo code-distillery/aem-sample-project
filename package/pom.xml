@@ -82,9 +82,20 @@
             <groupId>net.distilledcode.aem.samples</groupId>
             <artifactId>aem-sample-project-commons</artifactId>
         </dependency>
+
         <dependency>
             <groupId>net.distilledcode.aem.samples</groupId>
             <artifactId>aem-sample-project-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.sling</groupId>
+            <artifactId>org.apache.sling.scripting.jsp.taglib</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>jstl</artifactId>
         </dependency>
     </dependencies>
 

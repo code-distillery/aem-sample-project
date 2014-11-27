@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jcr:root xmlns:cq="http://www.day.com/jcr/cq/1.0" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:rep="internal"
+          jcr:primaryType="cq:Component"
+          jcr:description="Tabs component"
+          jcr:title="Tabs"
+          componentGroup="General"
+          comment="This component is not currently fully functional, it lacks a dialog and/or cq:editConfig"/>
